@@ -131,7 +131,7 @@ class ControllerSaleInpostParcel extends Controller
 				$url .= '&page=' . $this->request->get['page'];
 			}
 
-			$this->reponse->redirect($this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL'));
+			$this->response->redirect($this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL'));
     	}
 
     	$this->getList();
@@ -324,6 +324,28 @@ class ControllerSaleInpostParcel extends Controller
 		$data['entry_date_added'] = $this->language->get('entry_date_added');
 		$data['entry_date_modified'] = $this->language->get('entry_date_modified');
 		$data['entry_order_status'] = $this->language->get('entry_order_status');
+
+		// Get the data for the parcel status select
+		$data['select_parcel_status'] = array(
+		'Avizo'           => $this->language->get('select_avizo'),
+		'Claimed'         => $this->language->get('select_claimed'),
+		'Created'         => $this->language->get('select_created'),
+		'CustomerDelivering' => $this->language->get('select_customerdelivering'),
+		'CustomerSent'    => $this->language->get('select_customersent'),
+		'CustomerStored'  => $this->language->get('select_customerstored'),
+		'Delivered'       => $this->language->get('select_delivered'),
+		'DeliveredToAgency' => $this->language->get('select_deliveredtoagency'),
+		'Expired'         => $this->language->get('select_expired'),
+		'InTransit'       => $this->language->get('select_intransit'),
+		'LabelDestroyed'  => $this->language->get('select_labeldestroyed'),
+		'LabelExpired'    => $this->language->get('select_labelexpired'),
+		'Missing'         => $this->language->get('select_missing'),
+		'NotDelivered'    => $this->language->get('select_notdelivered'),
+		'Prepared'        => $this->language->get('select_prepared'),
+		'RetunedToAgency' => $this->language->get('select_retunedtoagency'),
+		'Sent'            => $this->language->get('select_sent'),
+		'Stored'          => $this->language->get('select_stored'),
+		);
 
 		$data['button_create'] = $this->language->get('button_create');
 		$data['button_cancel'] = $this->language->get('button_cancel');
@@ -564,6 +586,10 @@ class ControllerSaleInpostParcel extends Controller
 
 			$reply = $object_ip->connectInpostparcels($params);
 
+			$this->log->write("Reply = " . print_r($reply, true));
+
+			$parcel_id = "";
+
 			if($reply['info']['http_code'] == '201')
 			{
 				$parcel_id = $reply['result']->id;
@@ -576,7 +602,7 @@ class ControllerSaleInpostParcel extends Controller
 				$this->session->data['success'] = "Failed to create parcel. Error code: " . $reply['info']['http_code'];
 			}
 
-			if(!$json)
+			if(!$json && $parcel_id != "")
 			{
 				// Now pay for the parcel
 				$params['url']        = $api_url .
@@ -601,7 +627,7 @@ class ControllerSaleInpostParcel extends Controller
 				}
 			}
 
-			if(!$json)
+			if(!$json && $parcel_id != "")
 			{
 				// Now get the details for the parcel
 				$params['url']        = $api_url .
@@ -621,10 +647,11 @@ class ControllerSaleInpostParcel extends Controller
 			}
 		}
 
-		//$this->response->setOutput(json_encode($json));
-		$token = $this->session->data['token'];
-		$this->reponse->redirect($this->url->link('sale/inpost_parcel&token=' .
-			$token, '', 'SSL'));
+		//$token = $this->session->data['token'];
+		//$this->response->redirect($this->url->link('sale/inpost_parcel&token=' .
+			//$token, '', 'SSL'));
+		// Now return to the list of parcels
+		$this->getList();
   	}
 
 	///
@@ -638,9 +665,14 @@ class ControllerSaleInpostParcel extends Controller
 
 		$data['title'] = $this->language->get('heading_title');
 
-		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+		if (isset($this->request->server['HTTPS']) &&
+			(($this->request->server['HTTPS'] == 'on') ||
+			($this->request->server['HTTPS'] == '1')))
+		{
 			$data['base'] = HTTPS_SERVER;
-		} else {
+		}
+		else
+		{
 			$data['base'] = HTTP_SERVER;
 		}
 
@@ -648,7 +680,6 @@ class ControllerSaleInpostParcel extends Controller
 
 		if ($this->request->server['REQUEST_METHOD'] == 'POST')
 		{
-			$url = '';
 
 			$json = array();
 
@@ -665,7 +696,7 @@ class ControllerSaleInpostParcel extends Controller
 				$orders[] = $this->request->get['order_id'];
 			}
 		
-			$this->load->library('inpostparcels');
+			$this->load->language('system/library/inpostparcels');
 			$this->load->model('module/inpost');
 
 			// Need to create our own object.
@@ -695,9 +726,9 @@ class ControllerSaleInpostParcel extends Controller
 				$parcel_sticker[] = $ret[0]['parcel_id'];
 			}
 
-			if(count($parcel_sticker) > 0)
+			if (count($parcel_sticker) > 0)
 			{
-				if(count($parcel_sticker) > 1)
+				if (count($parcel_sticker) > 1)
 				{
 					$parcel_list = implode(';', $parcel_sticker);
 				}
@@ -705,6 +736,7 @@ class ControllerSaleInpostParcel extends Controller
 				{
 					$parcel_list = $parcel_sticker[0];
 				}
+				$label_format = 'Pdf';
 
 
 				$params['url']        = $api_url .
@@ -720,8 +752,24 @@ class ControllerSaleInpostParcel extends Controller
 
 				$reply = $object_ip->connectInpostparcels($params);
 
-				if($reply['info']['http_code'] == '200')
+				if ($reply['info']['http_code'] == '200')
 				{
+					date_default_timezone_set('Europe/London');
+					$timestamp = date('ymdH', time());
+					if($label_format == 'Pdf')
+					{
+						$file_name = $timestamp . ".pdf";
+					}
+					else
+					{
+						$file_name = $timestamp . ".epl";
+					}
+
+					// Output to screen
+					header('Content-type: application/pdf');
+					header("Content-Disposition:attachment; filename=$file_name");
+					echo base64_decode($reply['result']);
+
 				// Try and save the PDF as a local (server) file
 				$base_name = '/pdf_files/' . 'stickers_' .
 					date('Y-m-d_H-i-s') . '.pdf';
@@ -763,26 +811,9 @@ class ControllerSaleInpostParcel extends Controller
 				}
 			}
 
-			//$this->template = 'sale/parcel_list.tpl';
-			//$this->children = array(
-				//'common/header',
-				//'common/footer'
-			//);
-
-			//$this->response->setOutput($this->render());
-//			$this->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'] . $url, 'SSL'));
 		}
 
-		//$this->template = 'sale/parcel_list.tpl';
-
-		//$this->response->setOutput(json_encode($json));
-		//$this->response->setOutput($this->render());
-		//$this->getList();
-
-		//$token = $this->session->data['token'];
-		//$this->redirect($this->url->link('sale/inpost_parcel&token=' .
-		//	$token, '', 'SSL'));
-		$this->reponse->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'] . $url, 'SSL'));
+		$this->response->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'], 'SSL'));
 	}
 
 	///
@@ -796,9 +827,14 @@ class ControllerSaleInpostParcel extends Controller
 
 		$data['title'] = $this->language->get('heading_title');
 
-		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+		if (isset($this->request->server['HTTPS']) &&
+			(($this->request->server['HTTPS'] == 'on') ||
+			($this->request->server['HTTPS'] == '1')))
+		{
 			$data['base'] = HTTPS_SERVER;
-		} else {
+		}
+		else
+		{
 			$data['base'] = HTTP_SERVER;
 		}
 
@@ -806,8 +842,6 @@ class ControllerSaleInpostParcel extends Controller
 
 		if ($this->request->server['REQUEST_METHOD'] == 'POST')
 		{
-			$url = '';
-
 			$json = array();
 
 			$data['orders'] = array();
@@ -823,7 +857,7 @@ class ControllerSaleInpostParcel extends Controller
 				$orders[] = $this->request->get['order_id'];
 			}
 		
-			$this->load->library('inpostparcels');
+			$this->load->language('system/library/inpostparcels');
 			$this->load->model('module/inpost');
 
 			// Need to create our own object.
@@ -840,7 +874,6 @@ class ControllerSaleInpostParcel extends Controller
 				if($ret == null || count($ret) == 0 ||
 				   $ret[0]['parcel_status'] == 'Cancelled')
 				{
-					$this->log->write('Cancel, continiuing...');
 					continue;
 				}
 
@@ -855,15 +888,7 @@ class ControllerSaleInpostParcel extends Controller
 					continue;
 				}
 
-				//if($ret[0]['sticker_creation_date'] == null)
-				//{
-					$reply = $this->cancelPreparedParcel($object_ip, $ret[0]['parcel_id'], $api_key, $api_url);
-				//}
-				//else
-				//{
-					//$reply = $this->cancelPreparedParcel($object_ip, $ret[0]['parcel_id'], $api_key, $api_url);
-					//$reply = $this->cancelStickeredParcel($object_ip, $ret[0]['parcel_id'], $ret[0]['variables'], $api_key, $api_url);
-				//}
+				$reply = $this->cancelPreparedParcel($object_ip, $ret[0]['parcel_id'], $api_key, $api_url);
 
 				if($reply['info']['http_code'] == '204')
 				{
@@ -872,9 +897,8 @@ class ControllerSaleInpostParcel extends Controller
 				}
 				else
 				{
-					//$this->error['warning'] = 
 					$this->session->data['success'] = 
-						"Failed to cancell the parcel. Error code: " .
+						"Failed to cancel the parcel. Error code: " .
 						$reply['info']['http_code'];
 					if (isset($this->error['warning']))
 					{
@@ -886,19 +910,9 @@ class ControllerSaleInpostParcel extends Controller
 					}
 				}
 			}
-
-			//$this->template = 'sale/parcel_list.tpl';
-			//$this->children = array(
-				//'common/header',
-				//'common/footer'
-			//);
-
-			//$this->response->setOutput($this->render());
 		}
 
-		//$this->getList();
-
-		$this->reponse->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'] . $url, 'SSL'));
+		$this->response->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'], 'SSL'));
 	}
 
 	///
@@ -917,40 +931,7 @@ class ControllerSaleInpostParcel extends Controller
 
 		$reply = $object_ip->connectInpostparcels($params);
 
-		$this->log->write('Reply = ' . json_encode($reply));
-
-		return $reply;
-	}
-
-	///
-	// cancelPreparedParcel function
-	//
-	// @brief Change the status of a parcel with created stickers.
-	//
-	// This would not work but the above cancel worksfor either a created
-	// parcel or one with stickers created.
-	//
-	private function cancelStickeredParcel($object_ip, $parcel_id, $vars, $api_key, $api_url)
-	{
-		$var_data = explode(':', $vars);
-
-		$params['url']        = $api_url . 'parcels/' .
-				$parcel_id;
-		$params['token']      = $api_key;
-		$params['methodType'] = 'PUT';
-		$params['params']     = array(
-				'description' => 'Cancelled',
-				'id'          => $parcel_id,
-				'size'        => $var_data[1],
-				'status'      => 'Cancelled'
-		);
-		//$params['id']     = $ret[0]['parcel_id'];
-		//$params['size']       = $var_data[1];
-		//$params['status']     = 'Cancelled';
-
-		$reply = $object_ip->connectInpostparcels($params);
-
-		$this->log->write('Reply = ' . json_encode($reply));
+		//$this->log->write('Reply = ' . json_encode($reply));
 
 		return $reply;
 	}

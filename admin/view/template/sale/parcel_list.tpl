@@ -3,9 +3,9 @@
   <div class="page-header">
     <div class="container-fluid">
       <div class="pull-right">
-         <button type="submit" id="button-create" form="form-parcel" formaction="<?php echo $create; ?>" data-toggle="tooltip" title="<?php echo $button_create; ?>" class="btn btn-info"><?php echo $button_create; ?></button>
-         <button type="submit" id="button-cancel" form="form-parcel" formaction="<?php echo $cancel; ?>" data-toggle="tooltip" title="<?php echo $button_cancel; ?>" class="btn btn-info"><?php echo $button_cancel; ?></button>
-         <button type="submit" id="button-labels" form="form-parcel" formaction="<?php echo $labels; ?>" data-toggle="tooltip" title="<?php echo $button_labels; ?>" class="btn btn-info"><?php echo $button_labels; ?></button>
+         <button type="submit" form="form-parcel" id="button-create" formtarget="_self" formaction="<?php echo $create; ?>" data-toggle="tooltip" title="<?php echo $button_create; ?>" class="btn btn-info"><?php echo $button_create; ?></button>
+         <button type="submit" id="button-labels" form="form-parcel" formtarget="_blank" formaction="<?php echo $labels; ?>" data-toggle="tooltip" title="<?php echo $button_labels; ?>" class="btn btn-info"><?php echo $button_labels; ?></button>
+         <button type="submit" id="button-cancel" form="form-parcel" formtarget="_self" formaction="<?php echo $cancel; ?>" data-toggle="tooltip" title="<?php echo $button_cancel; ?>" class="btn btn-danger"><?php echo $button_cancel; ?></button>
       </div>
       <h1><?php echo $heading_title; ?></h1>
       <ul class="breadcrumb">
@@ -39,19 +39,14 @@
             </div>
             <div class="col-sm-4">
               <div class="form-group">
-                <label class="control-label" for="input-order-status"><?php echo $entry_order_status; ?></label>
-                <select name="filter_order_status" id="input-order-status" class="form-control">
+                <label class="control-label" for="input-parcel-status"><?php echo $entry_order_status; ?></label>
+                <select name="filter_parcel_status" id="input-parcel-status" class="form-control">
                   <option value="*"></option>
-                  <?php if ($filter_order_status == '0') { ?>
-                  <option value="0" selected="selected"><?php echo $text_missing; ?></option>
+                  <?php foreach ($select_parcel_status as $key => $order_status) { ?>
+                  <?php if ($key == $filter_parcel_status) { ?>
+                  <option value="<?php echo $order_status; ?>" selected="selected"><?php echo $order_status; ?></option>
                   <?php } else { ?>
-                  <option value="0"><?php echo $text_missing; ?></option>
-                  <?php } ?>
-                  <?php foreach ($order_statuses as $order_status) { ?>
-                  <?php if ($order_status['order_status_id'] == $filter_order_status) { ?>
-                  <option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
-                  <?php } else { ?>
-                  <option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+                  <option value="<?php echo $order_status; ?>"><?php echo $order_status; ?></option>
                   <?php } ?>
                   <?php } ?>
                 </select>
@@ -138,39 +133,39 @@
   <script type="text/javascript"><!--
 $('#button-filter').on('click', function() {
 	url = 'index.php?route=sale/inpost_parcel&token=<?php echo $token; ?>';
-	
-	var filter_order_id = $('input[name=\'filter_order_id\']').attr('value');
-	
+
+	var filter_order_id = $('input[name=\'filter_order_id\']').val();
+
 	if (filter_order_id) {
 		url += '&filter_order_id=' + encodeURIComponent(filter_order_id);
 	}
-	
-	var filter_customer = $('input[name=\'filter_customer\']').attr('value');
-	
+
+	var filter_customer = $('input[name=\'filter_customer\']').val();
+
 	if (filter_customer) {
 		url += '&filter_customer=' + encodeURIComponent(filter_customer);
 	}
-	
-	var filter_order_status_id = $('select[name=\'filter_order_status_id\']').attr('value');
-	
+
+	var filter_order_status_id = $('select[name=\'filter_parcel_status\']').val();
+
 	if (filter_order_status_id != '*') {
-		url += '&filter_order_status_id=' + encodeURIComponent(filter_order_status_id);
+		url += '&filter_parcel_status_id=' + encodeURIComponent(filter_order_status_id);
 	}	
 
-	var filter_total = $('input[name=\'filter_total\']').attr('value');
+	var filter_total = $('input[name=\'filter_total\']').val();
 
 	if (filter_total) {
 		url += '&filter_total=' + encodeURIComponent(filter_total);
 	}	
-	
-	var filter_date_added = $('input[name=\'filter_date_added\']').attr('value');
-	
+
+	var filter_date_added = $('input[name=\'filter_date_added\']').val();
+
 	if (filter_date_added) {
 		url += '&filter_date_added=' + encodeURIComponent(filter_date_added);
 	}
-	
-	var filter_date_modified = $('input[name=\'filter_date_modified\']').attr('value');
-	
+
+	var filter_date_modified = $('input[name=\'filter_date_modified\']').val();
+
 	if (filter_date_modified) {
 		url += '&filter_date_modified=' + encodeURIComponent(filter_date_modified);
 	}
@@ -184,6 +179,5 @@ $('#button-filter').on('click', function() {
 $('.date').datetimepicker({
 	pickTime: false
 });
-//--></script></div>
-
+//--></script>
 <?php echo $footer; ?>

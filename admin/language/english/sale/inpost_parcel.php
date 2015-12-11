@@ -127,6 +127,26 @@ $_['text_size_a']                             = 'A';
 $_['text_size_b']                             = 'B';
 $_['text_size_c']                             = 'C';
 
+// Used in the parcel order status select
+$_['select_avizo']                            = 'Avizo';
+$_['select_claimed']                          = 'Claimed';
+$_['select_created']                          = 'Created';
+$_['select_customerdelivering']               = 'CustomerDelivering';
+$_['select_customersent']                     = 'CustomerSent';
+$_['select_customerstored']                   = 'CustomerStored';
+$_['select_delivered']                        = 'Delivered';
+$_['select_deliveredtoagency']                = 'DeliveredToAgency';
+$_['select_expired']                          = 'Expired';
+$_['select_intransit']                        = 'InTransit';
+$_['select_labeldestroyed']                   = 'LabelDestroyed';
+$_['select_labelexpired']                     = 'LabelExpired';
+$_['select_missing']                          = 'Missing';
+$_['select_notdelivered']                     = 'NotDelivered';
+$_['select_prepared']                         = 'Prepared';
+$_['select_retunedtoagency']                  = 'RetunedToAgency';
+$_['select_sent']                             = 'Sent';
+$_['select_stored']                           = 'Stored';
+
 // Column
 $_['column_order_id']                         = 'Order ID';
 $_['column_parcel_id']                        = 'Parcel ID';
