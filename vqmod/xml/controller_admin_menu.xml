@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>Add template menu item</id>
+        <version>1.0</version>
+        <vqmver>2.X</vqmver>
+        <author>InPost UK Ltd.</author>
+	<file name="admin/controller/common/menu.php">
+                <operation info="Add new language InPost menu item">
+                        <search position="after"><![CDATA[
+		$data['text_order'] = $this->language->get('text_order');
+                        ]]></search>
+                        <add><![CDATA[
+		$data['text_inpost'] = $this->language->get('text_inpost');
+                        ]]></add>
+                </operation>
+        </file>
+	<file name="admin/controller/common/menu.php">
+		<operation info="Add new menu item InPost">
+                        <search position="after"><![CDATA[
+		$data['order'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'], 'SSL');
+                        ]]></search>
+                        <add><![CDATA[
+		$data['inpost_order'] = $this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'], 'SSL');
+                        ]]></add>
+                </operation>
+        </file>
+</modification>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>Add menu link to header</id>
+        <version>1.0</version>
+        <vqmver>2.X</vqmver>
+        <author>InPost UK Ltd.</author>
+	<file name="admin/controller/common/header.php">
+                <operation info="Add new link data">
+                        <search position="after"><![CDATA[
+$data['processing_status'] = $this->url->link('sale/order', 'token=' . $this->session->data['token'] . '&filter_order_status=' . implode(',', $this->config->get('config_processing_status')), 'SSL');
+                        ]]></search>
+                        <add><![CDATA[
+                        $data['inpost_parcel'] = $this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'], 'SSL');
+                        ]]></add>
+                </operation>
+        </file>
+	<file name="admin/controller/common/header.php">
+                <operation info="Add new language item inpost">
+                        <search position="after"><![CDATA[
+		$data['text_order'] = $this->language->get('text_order');
+                        ]]></search>
+                        <add><![CDATA[
+		$data['text_inpost'] = $this->language->get('text_inpost');
+                        ]]></add>
+                </operation>
+        </file>
+</modification>

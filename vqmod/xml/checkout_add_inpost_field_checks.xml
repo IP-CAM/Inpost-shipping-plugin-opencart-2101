@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>Chckout add test for InPost field data</id>
+        <version>1.0</version>
+        <vqmver>2.X</vqmver>
+        <author>InPost UK Ltd.</author>
+	<file name="catalog/controller/checkout/shipping_method.php">
+                <operation info="Checkout Add data checking">
+                        <search position="before"><![CDATA[
+$products = $this->cart->getProducts();
+                        ]]></search>
+                        <add><![CDATA[
+if (!$json)
+{
+	if (isset($this->request->post['shipping_method']) &&
+		$this->request->post['shipping_method'] == 'inpost_shipping.standard_parcels')
+	{
+		if(strlen($this->request->post['locker_id']) == 0)
+		{
+			$json['error']['warning'] = 'Locker must be set.';
+		}
+		if (!$json)
+		{
+			if(strlen($this->request->post['mobile_number']) == 0)
+			{
+				$json['error']['warning'] = 'Mobile Number must be set.';
+			}
+		}
+	}
+}
+                        ]]></add>
+                </operation>
+        </file>
+
+	<file name="catalog/controller/checkout/shipping_method.php">
+                <operation info="Checkout add data saving">
+                        <search position="before"><![CDATA[
+$this->response->setOutput(json_encode($json));
+                        ]]></search>
+                        <add><![CDATA[
+if (!$json)
+{
+	// Save the Locker ID and Mobile number to the session.
+
+	$this->session->data['locker_id'] = $this->request->post['locker_id'];
+	$this->session->data['mobile_number'] = $this->request->post['mobile_number'];
+	$this->session->data['inpost_data'] = $this->request->post['inpost_data'];
+}
+                        ]]></add>
+                </operation>
+        </file>
+</modification>

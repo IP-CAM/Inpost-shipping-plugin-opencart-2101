@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+        <id>Add Geo Widget Java script to checkout</id>
+        <version>1.0</version>
+        <vqmver>2.X</vqmver>
+        <author>InPost UK Ltd.</author>
+	<file name="catalog/view/theme/default/template/checkout/checkout.tpl">
+                <operation info="Add geowidget to checkout">
+                        <search position="after"><![CDATA[
+<?php echo $header; ?>
+                        ]]></search>
+                        <add><![CDATA[
+<script type="text/javascript" src="https://geowidget.inpost.co.uk/dropdown.php?field_to_update=locker_id&user_function=user_function"></script>
+<script type="text/javascript">
+///
+// user_function function
+//
+// @param value mixed string
+// @return none
+//
+function user_function(value)
+{
+        document.getElementById('inpost_data').value=value;
+}
+</script>
+                        ]]></add>
+                </operation>
+        </file>
+</modification>
