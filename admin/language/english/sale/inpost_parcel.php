@@ -196,9 +196,13 @@ $_['entry_coupon']                            = 'Coupon:';
 $_['entry_voucher']                           = 'Voucher:';
 $_['entry_reward']                            = 'Reward:';
 $_['entry_target_machine_id']                 = 'Machine:';
-$_['entry_order_id']                          = 'Parcel ID';
-$_['entry_date_added']                        = 'Date Added';
+$_['entry_order_id']                          = 'Order ID';
+$_['entry_parcel_id']                         = 'Parcel ID';
+$_['entry_date_added']                        = 'Creation Date';
 $_['entry_date_modified']                     = 'Date Modified';
+$_['entry_machine_id']                        = 'Machine ID';
+$_['entry_sticker_date']                      = 'Sticker Creation Date';
+$_['entry_parcel_status']                     = 'Parcel Status';
 
 // Error
 $_['error_warning']                           = 'Warning: Please check the form carefully for errors!';
@@ -222,4 +226,6 @@ $_['error_upload']                            = 'Upload required!';
 $_['error_filename']                          = 'Filename must be between 3 and 128 characters!';
 $_['error_filetype']                          = 'Invalid file type!';
 $_['error_action']                            = 'Warning: Could not complete this action!';
+$_['error_wrong_status']                      = 'Warning: Parcel has wrong status for editing.';
+
 ?>

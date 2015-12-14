@@ -117,7 +117,7 @@ class ModelModuleInpost extends Model
 		}
 
 		if (!empty($data['filter_target_machine_id'])) {
-			$sql .= " AND parcel_target_machine_id = '" . $data['filter_machine_id'] . "'";
+			$sql .= " AND parcel_target_machine_id = '" . $data['filter_target_machine_id'] . "'";
 		}
 
 
@@ -135,7 +135,7 @@ class ModelModuleInpost extends Model
 			'parcel_status',
 			'parcel_target_machine_id',
 			'creation_date',
-			'sticker_creati9on_date'
+			'sticker_creation_date'
 		);
 
 		if (isset($data['sort']) && in_array($data['sort'], $sort_data)) {
@@ -235,14 +235,15 @@ class ModelModuleInpost extends Model
 	// setParcelId function
 	//
 	// @brief Set the Parcel ID of the order row.
+	// @param String The order number to be saved against.
+	// @param String The parcel ID to be saved.
 	//
 	public function setParcelId($order_id, $parcel_id)
 	{
 		$sql = "UPDATE `" . DB_PREFIX .
 			"order_shipping_inpostparcels`" .
 			" SET parcel_id = '" . $parcel_id .
-			"', parcel_status = 'Created'" .
-			" WHERE order_id = '" . $order_id . "'";
+			"' WHERE order_id = '" . $order_id . "'";
 
 		$query = $this->db->query($sql);
 
@@ -264,7 +265,7 @@ class ModelModuleInpost extends Model
 				"order_shipping_inpostparcels`" .
 				" SET sticker_creation_date = '" . date('Y-m-d H:i:s') .
 				"', file_name = \"<a href='" . $filename . "' target='_blank'>Click Here</a>\"" .
-
+				", parcel_status = 'Prepared' " .
 				" WHERE parcel_id = '" . $parcel . "'";
 
 			$query = $this->db->query($sql);

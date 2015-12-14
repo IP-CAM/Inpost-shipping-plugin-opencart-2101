@@ -12,7 +12,7 @@ class ModelCheckoutInpostShipping extends Model
 			$this->db->escape($data['mobile_number']) . ":" .
 			$this->db->escape($data['parcel_size']) . ":" .
 			$this->db->escape($data['email']) .
-			"', parcel_status = 'Prepared', api_source='UK'" );
+			"', parcel_status = 'Created', api_source='UK'" );
 
 		$order_id = $this->db->getLastId();
 

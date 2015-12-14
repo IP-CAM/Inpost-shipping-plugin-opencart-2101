@@ -16,6 +16,11 @@
     </div>
   </div>
   <div class="container-fluid">
+    <?php if ($error_warning) { ?>
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_warning; ?>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <?php } ?>
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-list"></i> <?php echo $text_list; ?></h3>
@@ -29,17 +34,17 @@
                 <input type="text" name="filter_order_id" value="<?php echo $filter_order_id; ?>" placeholder="<?php echo $entry_order_id; ?>" id="input-order-id" class="form-control" />
               </div>
               <div class="form-group">
-                <label class="control-label" for="input-date-added"><?php echo $entry_date_added; ?></label>
-                <div class="input-group date">
-                  <input type="text" name="filter_date_added" value="<?php echo $filter_creation_date; ?>" placeholder="<?php echo $entry_date_added; ?>" data-date-format="YYYY-MM-DD" id="input-date-added" class="form-control" />
-                  <span class="input-group-btn">
-                  <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
-                  </span></div>
+                <label class="control-label" for="input-machine-id"><?php echo $entry_machine_id; ?></label>
+                <input type="text" name="filter_target_machine_id" value="<?php echo $filter_target_machine_id; ?>" placeholder="<?php echo $entry_machine_id; ?>" data-date-format="YYYY-MM-DD" id="input-machine-id" class="form-control" />
               </div>
             </div>
             <div class="col-sm-4">
               <div class="form-group">
-                <label class="control-label" for="input-parcel-status"><?php echo $entry_order_status; ?></label>
+                <label class="control-label" for="input-parcel-id"><?php echo $entry_parcel_id; ?></label>
+                <input type="text" name="filter_parcel_id" value="<?php echo $filter_parcel_id; ?>" placeholder="<?php echo $entry_parcel_id; ?>" id="input-parcel-id" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="input-parcel-status"><?php echo $entry_parcel_status; ?></label>
                 <select name="filter_parcel_status" id="input-parcel-status" class="form-control">
                   <option value="*"></option>
                   <?php foreach ($select_parcel_status as $key => $order_status) { ?>
@@ -50,6 +55,24 @@
                   <?php } ?>
                   <?php } ?>
                 </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-creation-date"><?php echo $entry_date_added; ?></label>
+                <div class="input-group date">
+                  <input type="text" name="filter_creation_date" value="<?php echo $filter_creation_date; ?>" placeholder="<?php echo $entry_date_added; ?>" data-date-format="YYYY-MM-DD" id="input-creation-date" class="form-control" />
+                  <span class="input-group-btn">
+                  <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                  </span></div>
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="input-sticker-date"><?php echo $entry_sticker_date; ?></label>
+                <div class="input-group date">
+                  <input type="text" name="filter_sticker_date" value="<?php echo $filter_sticker_creation_date; ?>" placeholder="<?php echo $entry_sticker_date; ?>" data-date-format="YYYY-MM-DD" id="input-sticker-date" class="form-control" />
+                  <span class="input-group-btn">
+                  <button type="button" class="btn btn-default"><i class="fa fa-calendar"></i></button>
+                  </span></div>
               </div>
               <button type="button" id="button-filter" class="btn btn-primary pull-right"><i class="fa fa-search"></i> <?php echo $button_filter; ?></button>
             </div>
@@ -111,7 +134,14 @@
                   <td class="text-left"><?php echo $order['creation_date']; ?></td>
                   <td class="text-left"><?php echo $order['file_name']; ?></td>
                   <td class="text-left"><?php echo $order['sticker_creation_date']; ?></td>
-                  <td class="text-right"><a href="<?php echo $order['view']; ?>" data-toggle="tooltip" title="<?php echo $button_view; ?>" class="btn btn-info"><i class="fa fa-eye"></i></a> <a href="<?php echo $order['edit']; ?>" data-toggle="tooltip" title="<?php echo $button_edit; ?>" class="btn btn-primary"><i class="fa fa-pencil"></i></a></td>
+                  <td class="text-right">
+                    <a href="<?php echo $order['view']; ?>" data-toggle="tooltip" title="<?php echo $button_view; ?>" class="btn btn-info"><i class="fa fa-eye"></i></a>
+                    <?php if ($order['parcel_status'] == 'Created') : ?>
+                    <a href="<?php echo $order['edit']; ?>" data-toggle="tooltip" title="<?php echo $button_edit; ?>" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                    <?php else: ?>
+                    <a href="javascript:void(0);" data-toggle="tooltip" title="<?php echo $button_edit; ?>" class="btn btn-primary disabled"><i class="fa fa-pencil"></i></a>
+                    <?php endif; ?>
+                  </td>
                 </tr>
                 <?php } ?>
                 <?php } else { ?>
@@ -139,37 +169,34 @@ $('#button-filter').on('click', function() {
 	if (filter_order_id) {
 		url += '&filter_order_id=' + encodeURIComponent(filter_order_id);
 	}
+	var filter_parcel_id = $('input[name=\'filter_parcel_id\']').val();
 
-	var filter_customer = $('input[name=\'filter_customer\']').val();
+	if (filter_parcel_id) {
+		url += '&filter_parcel_id=' + encodeURIComponent(filter_parcel_id);
+	}
+	var filter_target_machine_id = $('input[name=\'filter_target_machine_id\']').val();
 
-	if (filter_customer) {
-		url += '&filter_customer=' + encodeURIComponent(filter_customer);
+	if (filter_target_machine_id) {
+		url += '&filter_target_machine_id=' + encodeURIComponent(filter_target_machine_id);
 	}
 
-	var filter_order_status_id = $('select[name=\'filter_parcel_status\']').val();
+	var filter_parcel_status = $('select[name=\'filter_parcel_status\']').val();
 
-	if (filter_order_status_id != '*') {
-		url += '&filter_parcel_status_id=' + encodeURIComponent(filter_order_status_id);
-	}	
-
-	var filter_total = $('input[name=\'filter_total\']').val();
-
-	if (filter_total) {
-		url += '&filter_total=' + encodeURIComponent(filter_total);
-	}	
-
-	var filter_date_added = $('input[name=\'filter_date_added\']').val();
-
-	if (filter_date_added) {
-		url += '&filter_date_added=' + encodeURIComponent(filter_date_added);
+	if (filter_parcel_status != '*') {
+		url += '&filter_parcel_status=' + encodeURIComponent(filter_parcel_status);
 	}
 
-	var filter_date_modified = $('input[name=\'filter_date_modified\']').val();
+	var filter_creation_date = $('input[name=\'filter_creation_date\']').val();
 
-	if (filter_date_modified) {
-		url += '&filter_date_modified=' + encodeURIComponent(filter_date_modified);
+	if (filter_creation_date) {
+		url += '&filter_creation_date=' + encodeURIComponent(filter_creation_date);
 	}
-				
+	var filter_sticker_date = $('input[name=\'filter_sticker_date\']').val();
+
+	if (filter_sticker_date) {
+		url += '&filter_sticker_creation_date=' + encodeURIComponent(filter_sticker_date);
+	}
+
 	location = url;
 });
 //--></script>  

@@ -32,7 +32,7 @@
       <div class="panel-body">
         <form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-featured" class="form-horizontal">
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-apikey"><?php echo $label_api_key; ?> <span class="required">*</span></label>
+            <label class="col-sm-2 control-label" for="input-apikey"><?php echo $label_api_key; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_api_key" placeholder="Your Unique API Key" value="<?php echo $inpost_api_key;?>" size="50" id="input-apikey" class="form-control" >
 	      <?php if ($error_api_key): ?>
@@ -41,38 +41,57 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-apiurl"><?php echo $label_api_url; ?> <span class="required">*</span></label>
+            <label class="col-sm-2 control-label" for="input-apiurl"><?php echo $label_api_url; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_api_url" placeholder="Normally http://api-uk.easypack24.net/" value="<?php echo $inpost_api_url;?>" size="50" id="input-apiurl" class="form-control" >
 	      <?php if($error_api_url) echo '<div class="text-danger">' . $error_api_url . '</div>'; ?>
             </div>
           </div>
           <div class="form-group">
-          <label class="col-sm-2 control-label" for="input-maxweight"><?php echo $label_max_weight; ?> <span class="required">*</span></label>
+          <label class="col-sm-2 control-label" for="input-maxweight"><?php echo $label_max_weight; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_max_weight" placeholder="Max Weight (15kg)" value="<?php echo $inpost_max_weight;?>" id="input-maxweight" class="form-control" >
 	      <?php if($error_max_weight) echo '<div class="text-danger">' . $error_max_weight . '</div>'; ?>
             </div>
           </div>
           <div class="form-group">
-          <label class="col-sm-2 control-label" for="input-sizea"><?php echo $label_max_sizea; ?> <span class="required">*</span></label>
+          <label class="col-sm-2 control-label" for="input-sizea"><?php echo $label_max_sizea; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_max_sizea" placeholder="Usually 8x38x64" value="<?php echo $inpost_max_sizea;?>" id="input-sizea" class="form-control" >
 	      <?php if($error_max_sizea) echo '<div class="text-danger">' . $error_max_sizea . '</div>'; ?>
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-sizeb"><?php echo $label_max_sizeb; ?> <span class="required">*</span></label>
+            <label class="col-sm-2 control-label" for="input-sizeb"><?php echo $label_max_sizeb; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_max_sizeb" placeholder="Usually 19x38x64" value="<?php echo $inpost_max_sizeb;?>" id="input-sizeb" class="form-control" >
 	      <?php if($error_max_sizeb) echo '<div class="text-danger">' . $error_max_sizeb . '</div>'; ?>
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-sizec"><?php echo $label_max_sizec; ?> <span class="required">*</span></label>
+            <label class="col-sm-2 control-label" for="input-sizec"><?php echo $label_max_sizec; ?></label>
             <div class="col-sm-10">
               <input type="text" name="inpost_max_sizec" placeholder="Usually 41x38x64" value="<?php echo $inpost_max_sizec;?>" id="input-sizec" class="form-control" >
 	      <?php if($error_max_sizec) echo '<div class="text-danger">' . $error_max_sizec . '</div>'; ?>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-format"><?php echo $label_format; ?></label>
+            <div class="col-sm-10">
+              <select name="inpost_format" id="input-format" class="form-control">
+                <option value="">Please select</option>
+                <?php if ($inpost_format == "Pdf") : ?>
+                <option value="Pdf" selected="selected"><?php echo $label_PDF; ?></option>
+                <?php else: ?>
+                <option value="Pdf"><?php echo $label_PDF; ?></option>
+                <?php endif; ?>
+                <?php if ($inpost_format == "Epl2") : ?>
+                <option value="Epl2" selected="selected"><?php echo $label_EPL2; ?></option>
+                <?php else: ?>
+                <option value="Epl2"><?php echo $label_EPL2; ?></option>
+                <?php endif; ?>
+              </select>
+	      <?php if($error_format) echo '<div class="text-danger">' . $error_format . '</div>'; ?>
             </div>
           </div>
         </form>

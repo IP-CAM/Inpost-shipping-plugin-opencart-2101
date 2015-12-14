@@ -76,68 +76,6 @@ class ControllerSaleInpostParcel extends Controller
   	}
 
 	///
-	// delete
-	//
-	public function delete()
-	{
-		$this->load->language('sale/order');
-
-		$this->document->setTitle($this->language->get('heading_title'));
-
-		$this->load->model('sale/order');
-
-    	if (isset($this->request->post['selected']) && ($this->validateDelete())) {
-			foreach ($this->request->post['selected'] as $order_id) {
-				$this->model_sale_order->deleteOrder($order_id);
-			}
-
-			$this->session->data['success'] = $this->language->get('text_success');
-
-			$url = '';
-
-			if (isset($this->request->get['filter_order_id'])) {
-				$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
-			}
-			
-			if (isset($this->request->get['filter_customer'])) {
-				$url .= '&filter_customer=' . urlencode(html_entity_decode($this->request->get['filter_customer'], ENT_QUOTES, 'UTF-8'));
-			}
-												
-			if (isset($this->request->get['filter_order_status_id'])) {
-				$url .= '&filter_order_status_id=' . $this->request->get['filter_order_status_id'];
-			}
-			
-			if (isset($this->request->get['filter_total'])) {
-				$url .= '&filter_total=' . $this->request->get['filter_total'];
-			}
-						
-			if (isset($this->request->get['filter_date_added'])) {
-				$url .= '&filter_date_added=' . $this->request->get['filter_date_added'];
-			}
-			
-			if (isset($this->request->get['filter_date_modified'])) {
-				$url .= '&filter_date_modified=' . $this->request->get['filter_date_modified'];
-			}
-													
-			if (isset($this->request->get['sort'])) {
-				$url .= '&sort=' . $this->request->get['sort'];
-			}
-
-			if (isset($this->request->get['order'])) {
-				$url .= '&order=' . $this->request->get['order'];
-			}
-
-			if (isset($this->request->get['page'])) {
-				$url .= '&page=' . $this->request->get['page'];
-			}
-
-			$this->response->redirect($this->url->link('sale/order', 'token=' . $this->session->data['token'] . $url, 'SSL'));
-    	}
-
-    	$this->getList();
-  	}
-
-	///
 	// getList function
 	//
 	// @brief Build a list of the current parcels
@@ -320,10 +258,13 @@ class ControllerSaleInpostParcel extends Controller
 		$data['column_sticker_creation_date'] = $this->language->get('column_sticker_creation_date');
 		$data['column_action'] = $this->language->get('column_action');
 
-		$data['entry_order_id'] = $this->language->get('entry_order_id');
-		$data['entry_date_added'] = $this->language->get('entry_date_added');
+		$data['entry_order_id']      = $this->language->get('entry_order_id');
+		$data['entry_parcel_id']     = $this->language->get('entry_parcel_id');
+		$data['entry_date_added']    = $this->language->get('entry_date_added');
 		$data['entry_date_modified'] = $this->language->get('entry_date_modified');
-		$data['entry_order_status'] = $this->language->get('entry_order_status');
+		$data['entry_sticker_date']  = $this->language->get('entry_sticker_date');
+		$data['entry_machine_id']    = $this->language->get('entry_machine_id');
+		$data['entry_parcel_status'] = $this->language->get('entry_parcel_status');
 
 		// Get the data for the parcel status select
 		$data['select_parcel_status'] = array(
@@ -586,8 +527,6 @@ class ControllerSaleInpostParcel extends Controller
 
 			$reply = $object_ip->connectInpostparcels($params);
 
-			$this->log->write("Reply = " . print_r($reply, true));
-
 			$parcel_id = "";
 
 			if($reply['info']['http_code'] == '201')
@@ -613,15 +552,10 @@ class ControllerSaleInpostParcel extends Controller
 				$params['params']     = array();
 
 				$reply = $object_ip->connectInpostparcels($params);
-				if($reply['info']['http_code'] == '204')
-				{
-					$this->log->write('Parcel is paid for.');
-				}
-				else
+				if($reply['info']['http_code'] != '204')
 				{
 					// Failed to pay for a parcel.
 					// Tell the user.
-					//$json['error'] = "Failed to pay for parcel. Error code: " . $reply['info']['http_code'];
 					$this->session->data['success'] = "Failed to pay for parcel. Error code: " . $reply['info']['http_code'];
 					$this->log->write("Failed to pay for parcel. Error code: " . $reply['info']['http_code']);
 				}
@@ -647,9 +581,6 @@ class ControllerSaleInpostParcel extends Controller
 			}
 		}
 
-		//$token = $this->session->data['token'];
-		//$this->response->redirect($this->url->link('sale/inpost_parcel&token=' .
-			//$token, '', 'SSL'));
 		// Now return to the list of parcels
 		$this->getList();
   	}
@@ -680,7 +611,6 @@ class ControllerSaleInpostParcel extends Controller
 
 		if ($this->request->server['REQUEST_METHOD'] == 'POST')
 		{
-
 			$json = array();
 
 			$data['orders'] = array();
@@ -703,8 +633,9 @@ class ControllerSaleInpostParcel extends Controller
 			$object_ip = new Inpostparcels();
 
 			// Get the config details for URL & key.
-			$api_url = $this->config->get('inpost_api_url');
-			$api_key = $this->config->get('inpost_api_key');
+			$api_url      = $this->config->get('inpost_api_url');
+			$api_key      = $this->config->get('inpost_api_key');
+			$label_format = $this->config->get('inpost_format');
 
 			$parcel_sticker = array();
 
@@ -736,7 +667,17 @@ class ControllerSaleInpostParcel extends Controller
 				{
 					$parcel_list = $parcel_sticker[0];
 				}
-				$label_format = 'Pdf';
+
+				if (strcasecmp($label_format, 'Pdf') == 0)
+				{
+					$format = 'Pdf';
+					$type   = 'normal';
+				}
+				else
+				{
+					$format = 'Epl2';
+					$type   = 'A6P';
+				}
 
 
 				$params['url']        = $api_url .
@@ -745,9 +686,9 @@ class ControllerSaleInpostParcel extends Controller
 				$params['token']      = $api_key;
 					$params['methodType'] = 'GET';
 				$params['params']     = array(
-					'format' => 'pdf',
+					'format' => $format,
 					'id'     => $parcel_list,
-					'type'   => 'normal'
+					'type'   => $type,
 				);
 
 				$reply = $object_ip->connectInpostparcels($params);
@@ -756,32 +697,33 @@ class ControllerSaleInpostParcel extends Controller
 				{
 					date_default_timezone_set('Europe/London');
 					$timestamp = date('ymdH', time());
-					if($label_format == 'Pdf')
+					if (strcasecmp($label_format, 'Pdf') == 0)
 					{
-						$file_name = $timestamp . ".pdf";
+						$extension = '.pdf';
+						$header = 'Content-type: application/pdf';
 					}
 					else
 					{
-						$file_name = $timestamp . ".epl";
+						$extension = '.epl';
+						$header = 'Content-type: application/text';
 					}
+					$file_name = $timestamp . $extension;
 
 					// Output to screen
-					header('Content-type: application/pdf');
+					header($header);
 					header("Content-Disposition:attachment; filename=$file_name");
 					echo base64_decode($reply['result']);
 
 				// Try and save the PDF as a local (server) file
 				$base_name = '/pdf_files/' . 'stickers_' .
-					date('Y-m-d_H-i-s') . '.pdf';
+					date('Y-m-d_H-i-s') . $extension;
 				$dir_filename = dirname(__FILE__) .
 					$base_name;
 				$filename     = HTTP_SERVER . 'controller/sale' . $base_name;
 
 				$file = fopen($dir_filename, 'wb');
 
-				$this->log->write('Labels, file= ' . $filename);
-
-				if($file != false)
+				if ($file != false)
 				{
 				fwrite($file, base64_decode($reply['result']));
 
@@ -810,7 +752,6 @@ class ControllerSaleInpostParcel extends Controller
 					}
 				}
 			}
-
 		}
 
 		$this->response->redirect($this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'], 'SSL'));
@@ -1112,6 +1053,8 @@ class ControllerSaleInpostParcel extends Controller
 	///
 	// getForm function
 	//
+	// @brief Allow the user to edit the parcel details.
+	//
 	public function getForm() 
 	{
 		$this->load->model('module/inpost');
@@ -1226,9 +1169,11 @@ class ControllerSaleInpostParcel extends Controller
 		$data['save'] = $this->url->link('sale/inpost_parcel/update', 'token=' . $this->session->data['token'] . $url, 'SSL');
 		$data['cancel'] = $this->url->link('sale/inpost_parcel', 'token=' . $this->session->data['token'] . $url, 'SSL');
 
-    	if (isset($this->request->get['order_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-      		$order_info = $this->model_module_inpost->getParcel($this->request->get['order_id']);
-    	}
+		if (isset($this->request->get['order_id']) &&
+			($this->request->server['REQUEST_METHOD'] != 'POST'))
+		{
+			$order_info = $this->model_module_inpost->getParcel($this->request->get['order_id']);
+		}
 
 		$data['token'] = $this->session->data['token'];
 		
@@ -1238,17 +1183,27 @@ class ControllerSaleInpostParcel extends Controller
 			$data['order_id'] = 0;
 		}
 					
-		if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+		if (isset($this->request->server['HTTPS']) &&
+			(($this->request->server['HTTPS'] == 'on') ||
+			($this->request->server['HTTPS'] == '1')))
+		{
 			$data['store_url'] = HTTPS_CATALOG;
-		} else {
+		}
+		else
+		{
 			$data['store_url'] = HTTP_CATALOG;
 		}
 		
-    		if (isset($this->request->post['email'])) {
+		if (isset($this->request->post['email']))
+		{
       			$data['email'] = $this->request->post['email'];
-    		} elseif (!empty($order_info)) { 
+		}
+		elseif (!empty($order_info))
+		{ 
 				$data['email'] = $order_info['email'];
-			} else {
+		}
+		else
+		{
       			$data['email'] = '';
     		}
 
@@ -1310,7 +1265,16 @@ class ControllerSaleInpostParcel extends Controller
 		{
       			$data['target_machine_id'] = '';
     		}
-		
+
+		// Check that we have not somehow gotten here with an order
+		// of the wrong status.
+		if ($order_info['parcel_status'] != 'Created')
+		{
+			$this->error['warning'] = $this->language->get('error_wrong_status');
+			$this->getList();
+			return;
+		}
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');

@@ -1,7 +1,8 @@
 <?php
-################################################################################################
-#  DIY Module Builder for Opencart 1.5.1.x From HostJars http://opencart.hostjars.com  		   #
-################################################################################################
+###############################################################################
+#  DIY Module Builder for Opencart 1.5.1.x From HostJars                      #
+#  http://opencart.hostjars.com  		                              #
+###############################################################################
 class ControllerModuleInpost extends Controller
 {
 	private $error = array(); 
@@ -86,18 +87,23 @@ class ControllerModuleInpost extends Controller
 				'entry_position',
 				'entry_status',
 				'entry_sort_order',
+				'entry_format',
 				'button_save',
 				'button_cancel',
 				'button_add_module',
 				'button_remove',
 				'label_api_key', //this is an example extra field added
 				'label_api_url',
+				'label_format',
 				'label_max_weight',
 				'label_max_sizea',
 				'label_max_sizeb',
 				'label_max_sizec',
+				'label_PDF',
+				'label_EPL2',
 				'label_err_api_key',
 				'label_err_api_url',
+				'label_err_format',
 				'label_err_max_weight',
 				'label_err_max_sizea',
 				'label_err_max_sizeb',
@@ -123,6 +129,7 @@ class ControllerModuleInpost extends Controller
 			'inpost_max_sizea',
 			'inpost_max_sizeb',
 			'inpost_max_sizec',
+			'inpost_format',
 		);
 		
 		foreach ($config_data as $conf)
@@ -190,6 +197,14 @@ class ControllerModuleInpost extends Controller
 		else
 		{
 			$data['error_max_sizec'] = '';
+		}
+		if(isset($this->error['format']))
+		{
+			$data['error_format'] = $this->error['format'];
+		}
+		else
+		{
+			$data['error_format'] = '';
 		}
 
 		// SET UP BREADCRUMB TRAIL. YOU WILL NOT NEED TO MODIFY THIS
@@ -283,6 +298,10 @@ class ControllerModuleInpost extends Controller
 		if(strlen(utf8_decode($this->request->post['inpost_max_sizec'])) == 0)
 		{
 			$this->error['max_sizec'] = $this->language->get('label_err_max_sizec');
+		}
+		if(strlen(utf8_decode($this->request->post['inpost_format'])) == 0)
+		{
+			$this->error['format'] = $this->language->get('label_err_format');
 		}
 
 		if (!$this->error)
