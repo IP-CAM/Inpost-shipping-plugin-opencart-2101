@@ -10,10 +10,8 @@
 $this->session->data['order_id'] = $this->model_checkout_order->addOrder($order_data);
                         ]]></search>
                         <add><![CDATA[
-$this->log->write('shipping_method = ' . 				
-	$this->session->data['shipping_method']['code']);
-
-if($this->session->data['shipping_method']['code'] == 'inpost_shipping.standard_parcels')
+	if (isset($this->session->data['shipping_method']['code']) &&
+	$this->session->data['shipping_method']['code'] == 'inpost_shipping.standard_parcels')
 {
 $this->load->model('checkout/inpost_shipping');
 $order_data['order_id']      = $this->session->data['order_id'];
@@ -34,7 +32,7 @@ if (isset($this->session->data['shipping_method']['code'])) {
 
                         ]]></search>
                         <add><![CDATA[
-$data['parcel_size'] = $this->session->data['shipping_method']['parcel_size'];
+$data['parcel_size'] = 'A';
                         ]]></add>
                 </operation>
         </file>

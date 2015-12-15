@@ -43,7 +43,7 @@
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-apiurl"><?php echo $label_api_url; ?></label>
             <div class="col-sm-10">
-              <input type="text" name="inpost_api_url" placeholder="Normally http://api-uk.easypack24.net/" value="<?php echo $inpost_api_url;?>" size="50" id="input-apiurl" class="form-control" >
+              <input type="text" name="inpost_api_url" placeholder="Normally https://api-uk.easypack24.net/" value="<?php echo $inpost_api_url;?>" size="50" id="input-apiurl" class="form-control" >
 	      <?php if($error_api_url) echo '<div class="text-danger">' . $error_api_url . '</div>'; ?>
             </div>
           </div>
