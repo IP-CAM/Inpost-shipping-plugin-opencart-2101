@@ -41,8 +41,8 @@ class ControllerSaleInpostParcel extends Controller
 				$url .= '&filter_customer=' . urlencode(html_entity_decode($this->request->get['filter_customer'], ENT_QUOTES, 'UTF-8'));
 			}
 												
-			if (isset($this->request->get['filter_order_status_id'])) {
-				$url .= '&filter_order_status_id=' . $this->request->get['filter_order_status_id'];
+			if (isset($this->request->get['filter_parcel_status'])) {
+				$url .= '&filter_parcel_status=' . $this->request->get['filter_parcel_status'];
 			}
 			
 			if (isset($this->request->get['filter_total'])) {
@@ -426,18 +426,21 @@ class ControllerSaleInpostParcel extends Controller
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
 
-		if ((utf8_strlen($this->request->post['machine_id']) < 1) || (utf8_strlen($this->request->post['machine_id']) > 11))
+		if ((utf8_strlen($this->request->post['machine_id']) < 1) || (utf8_strlen($this->request->post['machine_id']) > 14))
 		{
       			$this->error['target_machine_id'] = $this->language->get('error_machine_id');
 		}
 
-    	if ((utf8_strlen($this->request->post['email']) > 96) || (!preg_match('/^[^\@]+@.*\.[a-z]{2,6}$/i', $this->request->post['email']))) {
-      		$this->error['email'] = $this->language->get('error_email');
-    	}
+		if ((utf8_strlen($this->request->post['email']) > 96) || (!preg_match('/^[^\@]+@.*\.[a-z]{2,6}$/i', $this->request->post['email'])))
+		{
+			$this->error['email'] = $this->language->get('error_email');
+		}
 		
-    	if ((utf8_strlen($this->request->post['mobile']) < 9) || (utf8_strlen($this->request->post['mobile']) > 9)) {
-      		$this->error['mobile'] = $this->language->get('error_mobile');
-    	}
+		if ((utf8_strlen($this->request->post['mobile']) < 9) ||
+			(utf8_strlen($this->request->post['mobile']) > 9))
+		{
+			$this->error['mobile'] = $this->language->get('error_mobile');
+		}
 
 		$t_size = utf8_strtoupper($this->request->post['size']);
 		if ((utf8_strlen($this->request->post['size']) != 1) ||
@@ -938,8 +941,8 @@ class ControllerSaleInpostParcel extends Controller
 				$url .= '&filter_customer=' . urlencode(html_entity_decode($this->request->get['filter_customer'], ENT_QUOTES, 'UTF-8'));
 			}
 												
-			if (isset($this->request->get['filter_order_status_id'])) {
-				$url .= '&filter_order_status_id=' . $this->request->get['filter_order_status_id'];
+			if (isset($this->request->get['filter_parcel_status'])) {
+				$url .= '&filter_parcel_status=' . $this->request->get['filter_parcel_status'];
 			}
 			
 			if (isset($this->request->get['filter_total'])) {
@@ -1128,8 +1131,8 @@ class ControllerSaleInpostParcel extends Controller
 			$url .= '&filter_order_id=' . $this->request->get['filter_order_id'];
 		}
 		
-		if (isset($this->request->get['filter_order_status_id'])) {
-			$url .= '&filter_order_status_id=' . $this->request->get['filter_order_status_id'];
+		if (isset($this->request->get['filter_parcel_status'])) {
+			$url .= '&filter_parcel_status=' . $this->request->get['filter_parcel_status'];
 		}
 
 		if (isset($this->request->get['filter_date_added'])) {

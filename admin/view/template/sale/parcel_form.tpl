@@ -42,7 +42,7 @@
         <div class="form-group required">
             <label class="col-sm-2 control-label" for="machine_id"><?php echo $entry_target_machine_id; ?></label>
             <div class="col-sm-10">
-              <input type="text" name="machine_id" id="machine_id" value="<?php echo $target_machine_id; ?>" class="form-control" />
+              <input type="text" name="machine_id" id="machine_id" value="<?php echo $target_machine_id; ?>" class="form-control" maxlength="20" />
 		<a href="#" onClick="openMap(); return false;">Map</a>
                 <?php if ($error_target_machine_id) { ?>
                 <span class="error"><?php echo $error_target_machine_id; ?></span>
@@ -61,7 +61,7 @@
         <div class="form-group required">
             <label class="col-sm-2 control-label" for="input-mobile"><?php echo $text_mobile; ?> (07)</label>
             <div class="col-sm-10">
-              <input type="text" name="mobile" id="input-mobile" value="<?php echo $mobile; ?>"class="form-control" />
+              <input type="text" name="mobile" id="input-mobile" value="<?php echo $mobile; ?>" class="form-control" maxlength="9" />
                 <?php if ($error_mobile) { ?>
                 <span class="error"><?php echo $error_mobile; ?></span>
                 <?php } ?>
